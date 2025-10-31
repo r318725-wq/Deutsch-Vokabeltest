@@ -3,7 +3,7 @@ import pandas as pd
 
 st.set_page_config(page_title="ドイツ語単語テスト", page_icon="🇩🇪")
 
-st.title("🇩🇪 ドイツ語単語テスト（Googleスプレッドシート連動版）")
+st.title("🇩🇪 ドイツ語単語テスト")
 st.caption("最新データ：スプレッドシートから自動読み込み")
 
 # === GoogleスプレッドシートのCSVリンク ===
