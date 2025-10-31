@@ -114,3 +114,9 @@ if st.session_state['quiz_started']:
         st.session_state['page'] = 'setup'
         st.session_state['show_result'] = False
         st.session_state['user_answers'] = {}
+
+   # --- ここでテスト用データも削除 ---
+    keys_to_clear = ['questions', 'direction']
+    for key in keys_to_clear:
+        if key in st.session_state:
+            del st.session_state[key]
