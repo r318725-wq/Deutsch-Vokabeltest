@@ -50,7 +50,7 @@ if st.session_state.stage == "setting":
         st.session_state.questions = filtered.sample(min(num_questions, len(filtered))).to_dict(orient="records")
         st.session_state.stage = "quiz"
         st.session_state.current_index = 0
-        st.experimental_rerun()
+        st.experimental_rerun()  # ボタン押下時のみ rerun
 
 # クイズ画面
 elif st.session_state.stage == "quiz":
@@ -79,7 +79,7 @@ elif st.session_state.stage == "quiz":
             st.session_state.current_index += 1
         else:
             st.session_state.stage = "result"
-        st.experimental_rerun()
+        st.experimental_rerun()  # ボタン押下時のみ rerun
 
 # 結果画面
 elif st.session_state.stage == "result":
@@ -96,4 +96,4 @@ elif st.session_state.stage == "result":
 
     if st.button("最初の画面に戻る"):
         reset()
-        st.experimental_rerun()
+        st.experimental_rerun()  # ボタン押下時のみ rerun
