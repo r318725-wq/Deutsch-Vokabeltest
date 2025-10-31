@@ -27,7 +27,7 @@ if 'user_answers' not in st.session_state:
 if st.session_state['page'] == 'setup':
     st.header("テスト設定")
     parts = st.multiselect("品詞を選択してください（複数可）", options=df["品詞"].unique())
-    lessons = st.multiselect("レッスンを選択してください（複数可）", options=df["レッスン"].unique())
+    lessons = st.multiselect("出題範囲を選択してください（複数可）", options=df["出題範囲"].unique())
     direction = st.radio("出題方向を選択してください", ["日本語 → ドイツ語", "ドイツ語 → 日本語"])
 
     # 出題数を 10〜50、10単位で選択
