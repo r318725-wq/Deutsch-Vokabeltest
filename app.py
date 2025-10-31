@@ -108,10 +108,4 @@ if st.session_state['quiz_started']:
 
         st.write(f"スコア: {score}/{len(questions)}")
 
-     # --- リセットボタン ---
-if st.button("テストをリセット"):
-    keys_to_clear = ["questions", "quiz_started", "direction", "show_result", "user_answers"]
-    for key in keys_to_clear:
-        if key in st.session_state:
-            del st.session_state[key]
-    st.success("テストをリセットしました。ページを再読み込みしてください。")
+ 
