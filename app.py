@@ -1,77 +1,83 @@
-import streamlit as st
-import pandas as pd
-
-st.set_page_config(page_title="ドイツ語単語テスト", page_icon="🇩🇪")
-
-st.title("🇩🇪 ドイツ語単語テスト")
-st.caption("最新データ：スプレッドシートから自動読み込み")
-
-# === GoogleスプレッドシートのCSVリンク ===
 import pandas as pd
 import streamlit as st
+import random
 
+# GoogleスプレッドシートのCSVリンク
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1-B3-c9xsGxAbh6iolhiafa4QeqsrXdQQvO4XIL-nPoQ/export?format=csv"
 
+# データ読み込み関数（キャッシュ付き）
 @st.cache_data
 def load_data(url):
     df = pd.read_csv(url)
     df.columns = df.columns.str.strip()  # 列名の空白を削除
     return df
 
-# データ読み込み
+# データを読み込む
 df = load_data(SHEET_URL)
 
-# 列名を確認
-st.write(df.columns)
+# 列名確認用（必要に応じてコメントアウト）
+st.write("列名確認:", df.columns)
 
-# 例：品詞の選択肢
-parts = st.multiselect("品詞を選択", df["品詞"].unique())
+st.title("ドイツ語単語テスト")
 
-# データ読み込み
-try:
-    df = load_data(SHEET_URL)
-except Exception as e:
-    st.error("❌ スプレッドシートの読み込みに失敗しました。URLを確認してください。")
-    st.stop()
+# --- 品詞選択 ---
+parts = st.multiselect(
+    "品詞を選択してください（複数可）", 
+    options=df["品詞"].unique()
+)
 
-# --- テスト条件 ---
-parts = st.multiselect("品詞を選択", df["品詞"].unique())
-lessons = st.multiselect("レッスンを選択", sorted(df["レッスン"].unique()))
-direction = st.radio("出題方向を選択", ["日本語 → ドイツ語", "ドイツ語 → 日本語"])
-num_questions = st.slider("出題数", 1, 30, 5)
+# --- レッスン選択 ---
+lessons = st.multiselect(
+    "レッスンを選択してください（複数可）",
+    options=df["レッスン"].unique()
+)
 
-# --- フィルタリング ---
-filtered = df.copy()
-if parts:
-    filtered = filtered[filtered["品詞"].isin(parts)]
-if lessons:
-    filtered = filtered[filtered["レッスン"].isin(lessons)]
+# --- 出題方向選択 ---
+direction = st.radio(
+    "出題方向を選んでください",
+    options=["日本語 → ドイツ語", "ドイツ語 → 日本語"]
+)
 
-# --- 出題 ---
-if st.button("📝 テスト開始！"):
-    if len(filtered) == 0:
-        st.warning("条件に合う単語がありません。")
+# --- 出題数選択 ---
+num_questions = st.number_input(
+    "出題数",
+    min_value=1,
+    max_value=len(df),
+    value=5,
+    step=1
+)
+
+# --- テスト開始 ---
+if st.button("テスト開始"):
+
+    # 条件に合う単語を抽出
+    filtered = df
+    if parts:
+        filtered = filtered[filtered["品詞"].isin(parts)]
+    if lessons:
+        filtered = filtered[filtered["レッスン"].isin(lessons)]
+
+    if filtered.empty:
+        st.warning("選択条件に合う単語がありません。")
     else:
+        # 出題数分ランダム抽出
         questions = filtered.sample(min(num_questions, len(filtered)))
+
         score = 0
-        st.write("---")
-
-        for i, row in enumerate(questions.itertuples(), 1):
+        for i, row in questions.iterrows():
             if direction == "日本語 → ドイツ語":
-                question, answer = row.日本語, row.ドイツ語
-            else:
-                question, answer = row.ドイツ語, row.日本語
-
-            user_input = st.text_input(f"{i}. {question}", key=f"q{i}")
-
-            if user_input:
-                if user_input.strip().lower() == answer.strip().lower():
-                    st.success(f"✅ 正解！（{answer}）")
+                answer = st.text_input(f"{i+1}. {row['日本語']}", key=f"q_{i}")
+                if answer.strip().lower() == str(row["ドイツ語"]).strip().lower():
+                    st.success("正解！")
                     score += 1
-                else:
-                    st.error(f"❌ 不正解。正解は「{answer}」")
+                elif answer != "":
+                    st.error(f"不正解。正解は {row['ドイツ語']} です")
+            else:
+                answer = st.text_input(f"{i+1}. {row['ドイツ語']}", key=f"q_{i}")
+                if answer.strip().lower() == str(row["日本語"]).strip().lower():
+                    st.success("正解！")
+                    score += 1
+                elif answer != "":
+                    st.error(f"不正解。正解は {row['日本語']} です")
 
-        st.write("---")
-        st.info(f"🎯 結果：{score}/{len(questions)} 正解（{score/len(questions)*100:.1f}%）")
-
-st.caption("Made with ❤️ by ChatGPT & Streamlit")
+        st.write(f"あなたのスコア: {score} / {len(questions)}")
