@@ -39,11 +39,14 @@ direction = st.radio(
 )
 
 # --- 出題数選択 ---
+max_num = len(df)
+initial_value = min(5, max_num)  # データ数が5未満ならそれに合わせる
+
 num_questions = st.number_input(
     "出題数",
     min_value=1,
-    max_value=len(df),
-    value=5,
+    max_value=max_num,
+    value=initial_value,
     step=1
 )
 
