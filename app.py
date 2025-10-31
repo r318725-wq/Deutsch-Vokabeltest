@@ -14,33 +14,30 @@ def load_data(url):
 # データ読み込み
 df = load_data(SHEET_URL)
 
-# --- 品詞選択 ---
+st.title("ドイツ語単語テスト")
+
+# --- 設定画面 ---
 parts = st.multiselect(
-    "品詞を選択してください（複数可）", 
+    "品詞を選択してください（複数可）",
     options=df["品詞"].unique()
 )
 
-# --- レッスン選択 ---
 lessons = st.multiselect(
     "レッスンを選択してください（複数可）",
     options=df["レッスン"].unique()
 )
 
-# --- 出題方向選択 ---
 direction = st.radio(
     "出題方向を選んでください",
     options=["日本語 → ドイツ語", "ドイツ語 → 日本語"]
 )
 
-# --- 出題数選択 ---
 max_num = len(df)
-initial_value = min(5, max_num)
-
 num_questions = st.number_input(
     "出題数",
     min_value=1,
     max_value=max_num,
-    value=initial_value,
+    value=min(5, max_num),
     step=1
 )
 
@@ -56,12 +53,14 @@ if st.button("テスト開始"):
         st.warning("選択条件に合う単語がありません。")
     else:
         questions = filtered.sample(min(num_questions, len(filtered)))
-        st.session_state.questions = questions  # セッションに保存
-        st.experimental_rerun()  # フォームに進む
+        st.session_state['questions'] = questions
+        st.session_state['quiz_started'] = True
+        st.session_state['direction'] = direction
 
 # --- フォーム方式で問題を表示 ---
-if 'questions' in st.session_state:
-    questions = st.session_state.questions
+if st.session_state.get('quiz_started', False):
+    questions = st.session_state['questions']
+    direction = st.session_state['direction']
     user_answers = {}
 
     with st.form("quiz_form"):
@@ -91,3 +90,10 @@ if 'questions' in st.session_state:
                 st.error(f"{i+1}. 不正解。正解は {correct} です")
 
         st.write(f"あなたのスコア: {score} / {len(questions)}")
+
+        # テスト終了後にリセットボタンも追加
+        if st.button("テストをリセット"):
+            for key in ["questions", "quiz_started", "direction"]:
+                if key in st.session_state:
+                    del st.session_state[key]
+            st.experimental_rerun()
