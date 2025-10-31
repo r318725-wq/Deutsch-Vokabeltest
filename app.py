@@ -1,10 +1,8 @@
 import pandas as pd
 import streamlit as st
 
-# GoogleスプレッドシートのCSVリンク
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1-B3-c9xsGxAbh6iolhiafa4QeqsrXdQQvO4XIL-nPoQ/export?format=csv"
 
-# データ読み込み関数（キャッシュ付き、ttlで更新反映可能）
 @st.cache_data(ttl=60)
 def load_data(url):
     df = pd.read_csv(url)
@@ -55,13 +53,14 @@ if st.button("テスト開始"):
         st.session_state['questions'] = questions
         st.session_state['quiz_started'] = True
         st.session_state['direction'] = direction
-        st.session_state['show_result'] = False  # 正解非表示フラグ
+        st.session_state['show_result'] = False
+        st.session_state['user_answers'] = {}
 
 # --- フォーム方式で問題を表示 ---
 if st.session_state.get('quiz_started', False):
     questions = st.session_state['questions']
     direction = st.session_state['direction']
-    user_answers = st.session_state.get('user_answers', {})
+    user_answers = st.session_state['user_answers']
 
     with st.form("quiz_form"):
         st.write("各単語に回答してください:")
@@ -96,9 +95,9 @@ if st.session_state.get('quiz_started', False):
 
         st.write(f"あなたのスコア: {score} / {len(questions)}")
 
-        # リセットボタン
+        # --- リセットボタン（rerun不要） ---
         if st.button("テストをリセット"):
             for key in ["questions", "quiz_started", "direction", "show_result", "user_answers"]:
                 if key in st.session_state:
                     del st.session_state[key]
-            st.experimental_rerun()
+            st.experimental_rerun()  # rerunは最後に一度だけ
