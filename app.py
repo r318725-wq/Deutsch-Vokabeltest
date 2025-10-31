@@ -23,7 +23,7 @@ if 'show_result' not in st.session_state:
 if 'user_answers' not in st.session_state:
     st.session_state['user_answers'] = {}
 
-# --- 最初の設定画面 ---
+# --- 設定画面 ---
 if st.session_state['page'] == 'setup':
     st.header("テスト設定")
     parts = st.multiselect("品詞を選択してください（複数可）", options=df["品詞"].unique())
@@ -50,7 +50,6 @@ if st.session_state['page'] == 'setup':
 # --- テスト画面 ---
 elif st.session_state['page'] == 'quiz':
     questions = st.session_state.get('questions', None)
-
     if questions is None:
         # 安全策：questionsがない場合は設定画面に戻す
         st.session_state['page'] = 'setup'
@@ -63,10 +62,11 @@ elif st.session_state['page'] == 'quiz':
     st.write("各単語に回答してください:")
 
     for i, row in questions.iterrows():
+        key_name = f"q_{i}"
         if direction == "日本語 → ドイツ語":
-            user_answers[i] = st.text_input(f"{i+1}. {row['日本語']}", value=user_answers.get(i, ""), key=f"q_{i}")
+            user_answers[i] = st.text_input(f"{i+1}. {row['日本語']}", value=user_answers.get(i, ""), key=key_name)
         else:
-            user_answers[i] = st.text_input(f"{i+1}. {row['ドイツ語']}", value=user_answers.get(i, ""), key=f"q_{i}")
+            user_answers[i] = st.text_input(f"{i+1}. {row['ドイツ語']}", value=user_answers.get(i, ""), key=key_name)
 
     st.session_state['user_answers'] = user_answers
 
@@ -87,12 +87,11 @@ elif st.session_state['page'] == 'quiz':
                 st.error(f"{i+1}. 不正解。正解は {correct} です")
         st.write(f"スコア: {score}/{len(questions)}")
 
-    # --- 最初の画面に戻るボタン ---
+    # --- 最初の画面に戻るボタン（安全版） ---
     if st.button("最初の画面に戻る"):
-        # セッションのテスト用データを全て削除
         keys_to_clear = ['questions', 'direction', 'show_result', 'user_answers']
         for key in keys_to_clear:
             if key in st.session_state:
                 del st.session_state[key]
         st.session_state['page'] = 'setup'
-        st.experimental_rerun()
+        # rerunは不要、Streamlitが自動で再描画します
