@@ -15,11 +15,6 @@ def load_data(url):
 # データを読み込む
 df = load_data(SHEET_URL)
 
-# 列名確認用（必要に応じてコメントアウト）
-st.write("列名確認:", df.columns)
-
-st.title("ドイツ語単語テスト")
-
 # --- 品詞選択 ---
 parts = st.multiselect(
     "品詞を選択してください（複数可）", 
