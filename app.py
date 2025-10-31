@@ -5,13 +5,12 @@ import streamlit as st
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1-B3-c9xsGxAbh6iolhiafa4QeqsrXdQQvO4XIL-nPoQ/export?format=csv"
 
 # データ読み込み関数（キャッシュ付き、ttlで更新反映可能）
-@st.cache_data(ttl=60)  # 60秒ごとに最新データを取得
+@st.cache_data(ttl=60)
 def load_data(url):
     df = pd.read_csv(url)
-    df.columns = df.columns.str.strip()  # 列名の空白を削除
+    df.columns = df.columns.str.strip()
     return df
 
-# データ読み込み
 df = load_data(SHEET_URL)
 
 st.title("ドイツ語単語テスト")
@@ -56,25 +55,31 @@ if st.button("テスト開始"):
         st.session_state['questions'] = questions
         st.session_state['quiz_started'] = True
         st.session_state['direction'] = direction
+        st.session_state['show_result'] = False  # 正解非表示フラグ
 
 # --- フォーム方式で問題を表示 ---
 if st.session_state.get('quiz_started', False):
     questions = st.session_state['questions']
     direction = st.session_state['direction']
-    user_answers = {}
+    user_answers = st.session_state.get('user_answers', {})
 
     with st.form("quiz_form"):
         st.write("各単語に回答してください:")
 
         for i, row in questions.iterrows():
+            key_name = f"q_{i}"
             if direction == "日本語 → ドイツ語":
-                user_answers[i] = st.text_input(f"{i+1}. {row['日本語']}", key=f"q_{i}")
+                user_answers[i] = st.text_input(f"{i+1}. {row['日本語']}", key=key_name, value=user_answers.get(i, ""))
             else:
-                user_answers[i] = st.text_input(f"{i+1}. {row['ドイツ語']}", key=f"q_{i}")
+                user_answers[i] = st.text_input(f"{i+1}. {row['ドイツ語']}", key=key_name, value=user_answers.get(i, ""))
 
         submitted = st.form_submit_button("回答を確認")
+        if submitted:
+            st.session_state['user_answers'] = user_answers
+            st.session_state['show_result'] = True
 
-    if submitted:
+    # --- 正解表示 ---
+    if st.session_state.get('show_result', False):
         score = 0
         for i, row in questions.iterrows():
             ans = user_answers[i].strip().lower()
@@ -91,9 +96,9 @@ if st.session_state.get('quiz_started', False):
 
         st.write(f"あなたのスコア: {score} / {len(questions)}")
 
-        # テスト終了後にリセットボタンも追加
+        # リセットボタン
         if st.button("テストをリセット"):
-            for key in ["questions", "quiz_started", "direction"]:
+            for key in ["questions", "quiz_started", "direction", "show_result", "user_answers"]:
                 if key in st.session_state:
                     del st.session_state[key]
             st.experimental_rerun()
