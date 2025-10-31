@@ -29,7 +29,13 @@ if st.session_state['page'] == 'setup':
     parts = st.multiselect("品詞を選択してください（複数可）", options=df["品詞"].unique())
     lessons = st.multiselect("レッスンを選択してください（複数可）", options=df["レッスン"].unique())
     direction = st.radio("出題方向を選択してください", ["日本語 → ドイツ語", "ドイツ語 → 日本語"])
-    num_questions = st.number_input("出題数", min_value=1, max_value=len(df), value=min(5, len(df)), step=1)
+
+    # 出題数を 10〜50、10単位で選択
+    num_questions = st.selectbox(
+        "出題数を選んでください",
+        options=[10, 20, 30, 40, 50],
+        index=0
+    )
 
     if st.button("テスト開始"):
         filtered = df
@@ -94,4 +100,3 @@ elif st.session_state['page'] == 'quiz':
             if key in st.session_state:
                 del st.session_state[key]
         st.session_state['page'] = 'setup'
-        # rerunは不要、Streamlitが自動で再描画します
