@@ -42,7 +42,7 @@ if st.session_state['page'] == 'setup':
         if parts:
             filtered = filtered[filtered["品詞"].isin(parts)]
         if lessons:
-            filtered = filtered[filtered["レッスン"].isin(lessons)]
+            filtered = filtered[filtered["出題範囲"].isin(lessons)]
         if filtered.empty:
             st.warning("選択条件に合う単語がありません。")
         else:
