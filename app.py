@@ -109,3 +109,8 @@ if st.session_state['quiz_started']:
         st.write(f"スコア: {score}/{len(questions)}")
 
  
+  # --- 最初に戻るボタン ---
+    if st.button("最初の画面に戻る"):
+        st.session_state['page'] = 'setup'
+        st.session_state['show_result'] = False
+        st.session_state['user_answers'] = {}
