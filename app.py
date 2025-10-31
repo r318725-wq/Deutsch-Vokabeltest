@@ -36,7 +36,7 @@ if st.session_state.stage == "setting":
     st.title("ドイツ語単語テスト設定")
 
     parts = st.multiselect("品詞を選択", options=df["品詞"].unique())
-    ranges = st.multiselect("出題範囲を選択（複数可）", options=df["レッスン"].unique())
+    ranges = st.multiselect("出題範囲を選択（複数可）", options=df["出題範囲"].unique())
     direction = st.radio("出題方向", ["日本語 → ドイツ語", "ドイツ語 → 日本語"])
     num_questions = st.number_input("出題数", min_value=10, max_value=50, step=10)
 
@@ -45,7 +45,7 @@ if st.session_state.stage == "setting":
         if parts:
             filtered = filtered[filtered["品詞"].isin(parts)]
         if ranges:
-            filtered = filtered[filtered["レッスン"].isin(ranges)]
+            filtered = filtered[filtered["出題範囲"].isin(ranges)]
         
         st.session_state.questions = filtered.sample(min(num_questions, len(filtered))).to_dict(orient="records")
         st.session_state.stage = "quiz"
