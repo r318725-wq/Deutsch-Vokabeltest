@@ -7,11 +7,25 @@ st.title("🇩🇪 ドイツ語単語テスト")
 st.caption("最新データ：スプレッドシートから自動読み込み")
 
 # === GoogleスプレッドシートのCSVリンク ===
+import pandas as pd
+import streamlit as st
+
 SHEET_URL = "https://docs.google.com/spreadsheets/d/1-B3-c9xsGxAbh6iolhiafa4QeqsrXdQQvO4XIL-nPoQ/export?format=csv"
 
 @st.cache_data
 def load_data(url):
-    return pd.read_csv(url)
+    df = pd.read_csv(url)
+    df.columns = df.columns.str.strip()  # 列名の空白を削除
+    return df
+
+# データ読み込み
+df = load_data(SHEET_URL)
+
+# 列名を確認
+st.write(df.columns)
+
+# 例：品詞の選択肢
+parts = st.multiselect("品詞を選択", df["品詞"].unique())
 
 # データ読み込み
 try:
