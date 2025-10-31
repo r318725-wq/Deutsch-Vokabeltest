@@ -28,7 +28,7 @@ if 'user_answers' not in st.session_state:
 if st.session_state['page'] == 'setup':
     st.header("テスト設定")
     parts = st.multiselect("品詞を選択してください（複数可）", options=df["品詞"].unique())
-    lessons = st.multiselect("レッスンを選択してください（複数可）", options=df["レッスン"].unique())
+    lessons = st.multiselect("出題範囲を選択してください（複数可）", options=df["出題範囲"].unique())
     direction = st.radio("出題方向を選択してください", ["日本語 → ドイツ語", "ドイツ語 → 日本語"])
 
     num_questions = st.selectbox(
@@ -42,7 +42,7 @@ if st.session_state['page'] == 'setup':
         if parts:
             filtered = filtered[filtered["品詞"].isin(parts)]
         if lessons:
-            filtered = filtered[filtered["レッスン"].isin(lessons)]
+            filtered = filtered[filtered["出題範囲"].isin(lessons)]
         if filtered.empty:
             st.warning("選択条件に合う単語がありません。")
         else:
