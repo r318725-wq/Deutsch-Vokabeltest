@@ -27,6 +27,16 @@ if 'user_answers' not in st.session_state:
 # --- 設定画面 ---
 if st.session_state['page'] == 'setup':
     st.header("テスト設定")
+
+    # --- 注意書き ---
+    st.info(
+        "💡 **注意事項**\n\n"
+        "・名詞は **定冠詞つき** で答えてください\n"
+        "・複数形は定冠詞いらないです！日本語で回答する時は「花（複）」みたいに書いてください\n"
+        "・回答は1通りしか登録されていないから、意味が合ってても間違い判定されることがあります。ごめんねーー\n"
+        "・意味の間違いとかスペルミスとかがあったら教えていただけると助かります "
+    )
+
     parts = st.multiselect("品詞を選択してください（複数可）", options=df["品詞"].unique())
     lessons = st.multiselect("出題範囲を選択してください（複数可）", options=df["出題範囲"].unique())
     direction = st.radio("出題方向を選択してください", ["日本語 → ドイツ語", "ドイツ語 → 日本語"])
@@ -52,7 +62,7 @@ if st.session_state['page'] == 'setup':
             st.session_state['page'] = 'quiz'
             st.session_state['show_result'] = False
             st.session_state['user_answers'] = {}
-            st.rerun()  # ← ★ これで1回クリックでページ遷移
+            st.rerun()
 
 # --- テスト画面 ---
 elif st.session_state['page'] == 'quiz':
@@ -79,7 +89,7 @@ elif st.session_state['page'] == 'quiz':
     # --- 回答確認ボタン ---
     if st.button("回答を確認"):
         st.session_state['show_result'] = True
-        st.rerun()  # ← ★ これで結果表示に即時切り替え
+        st.rerun()
 
     # --- 正解表示 ---
     if st.session_state.get('show_result', False):
@@ -88,9 +98,9 @@ elif st.session_state['page'] == 'quiz':
         def normalize_answer(text):
             """大文字小文字、ßをssに、Unicode正規化した文字列を返す"""
             text = str(text).strip()
-            text = unicodedata.normalize('NFC', text)  # 正規化
-            text = text.replace("ß", "ss")             # ß を ss に統一
-            return text.casefold()                     # 大文字小文字無視
+            text = unicodedata.normalize('NFC', text)
+            text = text.replace("ß", "ss")
+            return text.casefold()
 
         for i, row in questions.iterrows():
             ans = normalize_answer(user_answers.get(i, ""))
@@ -103,11 +113,16 @@ elif st.session_state['page'] == 'quiz':
 
         st.write(f"スコア: {score}/{len(questions)}")
 
-    # --- 最初の画面に戻るボタン ---
+        # --- 全問正解の場合 ---
+        if score == len(questions):
+            st.balloons()
+            st.success("お勉強頑張っててえらい！あなたはすばらしパーソンです！")
+
+    # --- 戻るボタン ---
     if st.button("最初の画面に戻る"):
         keys_to_clear = ['questions', 'direction', 'show_result', 'user_answers']
         for key in keys_to_clear:
             if key in st.session_state:
                 del st.session_state[key]
         st.session_state['page'] = 'setup'
-        st.rerun()  # ← ★ これで1回で戻る
+        st.rerun()
