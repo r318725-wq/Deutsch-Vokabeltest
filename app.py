@@ -28,14 +28,6 @@ if 'user_answers' not in st.session_state:
 if st.session_state['page'] == 'setup':
     st.header("テスト設定")
 
-  # --- 注意書き ---
-st.info(
-    "💡 **注意事項**<br><br>"
-    "・名詞は **定冠詞つき** で答えてください<br>"
-    "・複数形は定冠詞いらないです！日本語で回答する時は「花（複）」みたいに書いてください<br>"
-    "・回答は1通りしか登録されていないから、意味が合ってても間違い判定されることがあります。ごめんねーー<br>"
-    "・意味の間違いとかスペルミスとかがあったら教えていただけると助かります"
-)
 
     parts = st.multiselect("品詞を選択してください（複数可）", options=df["品詞"].unique())
     lessons = st.multiselect("出題範囲を選択してください（複数可）", options=df["出題範囲"].unique())
