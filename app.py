@@ -52,13 +52,14 @@ if st.session_state['page'] == 'setup':
             st.session_state['page'] = 'quiz'
             st.session_state['show_result'] = False
             st.session_state['user_answers'] = {}
+            st.rerun()  # ← ★ これで1回クリックでページ遷移
 
 # --- テスト画面 ---
 elif st.session_state['page'] == 'quiz':
     questions = st.session_state.get('questions', None)
     if questions is None:
         st.session_state['page'] = 'setup'
-        st.experimental_rerun()
+        st.rerun()
 
     direction = st.session_state['direction']
     user_answers = st.session_state.get('user_answers', {})
@@ -78,6 +79,7 @@ elif st.session_state['page'] == 'quiz':
     # --- 回答確認ボタン ---
     if st.button("回答を確認"):
         st.session_state['show_result'] = True
+        st.rerun()  # ← ★ これで結果表示に即時切り替え
 
     # --- 正解表示 ---
     if st.session_state.get('show_result', False):
@@ -87,8 +89,8 @@ elif st.session_state['page'] == 'quiz':
             """大文字小文字、ßをssに、Unicode正規化した文字列を返す"""
             text = str(text).strip()
             text = unicodedata.normalize('NFC', text)  # 正規化
-            text = text.replace("ß", "ss")          # ß を ss に統一
-            return text.casefold()                   # 大文字小文字無視
+            text = text.replace("ß", "ss")             # ß を ss に統一
+            return text.casefold()                     # 大文字小文字無視
 
         for i, row in questions.iterrows():
             ans = normalize_answer(user_answers.get(i, ""))
@@ -108,3 +110,4 @@ elif st.session_state['page'] == 'quiz':
             if key in st.session_state:
                 del st.session_state[key]
         st.session_state['page'] = 'setup'
+        st.rerun()  # ← ★ これで1回で戻る
