@@ -28,27 +28,26 @@ if 'user_answers' not in st.session_state:
 if st.session_state['page'] == 'setup':
     st.header("テスト設定")
 
-
+    # ① テスト設定項目
     parts = st.multiselect("品詞を選択してください（複数可）", options=df["品詞"].unique())
     lessons = st.multiselect("出題範囲を選択してください（複数可）", options=df["出題範囲"].unique())
     direction = st.radio("出題方向を選択してください", ["日本語 → ドイツ語", "ドイツ語 → 日本語"])
-
     num_questions = st.selectbox(
         "出題数を選んでください",
         options=[10, 30, 50],
         index=0
     )
 
-  # --- 注意書き ---
-st.info(
-    "💡 **注意事項**<br><br>"
-    "・名詞は **定冠詞つき** で答えてください<br>"
-    "・複数形は定冠詞いらないです！日本語で回答する時は「花（複）」みたいに書いてください<br>"
-    "・回答は1通りしか登録されていないから、意味が合ってても間違い判定されることがあります。ごめんねーー<br>"
-    "・意味の間違いとかスペルミスとかがあったら教えていただけると助かります"
-)
+    # ② 注意書き
+    st.info(
+        "💡 **注意事項**<br><br>"
+        "・名詞は **定冠詞つき** で答えてください<br>"
+        "・複数形は定冠詞いらないです！日本語で回答する時は「花（複）」みたいに書いてください<br>"
+        "・回答は1通りしか登録されていないから、意味が合ってても間違い判定されることがあります。ごめんねーー<br>"
+        "・意味の間違いとかスペルミスとかがあったら教えていただけると助かります"
+    )
 
-
+    # ③ テスト開始ボタン
     if st.button("テスト開始"):
         filtered = df
         if parts:
@@ -64,7 +63,7 @@ st.info(
             st.session_state['page'] = 'quiz'
             st.session_state['show_result'] = False
             st.session_state['user_answers'] = {}
-            st.rerun()
+            st.rerun()  # 1回クリックでテスト画面へ
 
 # --- テスト画面 ---
 elif st.session_state['page'] == 'quiz':
@@ -118,9 +117,9 @@ elif st.session_state['page'] == 'quiz':
         # --- 全問正解の場合 ---
         if score == len(questions):
             st.balloons()
-            st.success("あなたはすばらしパーソンです！")
+            st.success("すごいよーーーー！！！！あなたはすばらしパーソンです")
 
-    # --- 戻るボタン ---
+    # --- 最初の画面に戻るボタン ---
     if st.button("最初の画面に戻る"):
         keys_to_clear = ['questions', 'direction', 'show_result', 'user_answers']
         for key in keys_to_clear:
